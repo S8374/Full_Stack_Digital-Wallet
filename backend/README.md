@@ -250,22 +250,57 @@ Response
 }
 ```
 ***Have many More opration***
-| path | oparation     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api/v1/otp/verify` | post |verifyemail|
-| `api/v1/otp/send` | post |send otp in email|
-| `api/v1/agent/cash-in` | post |cashout any user wallet only aggent can do it|
-| `api/v1/otp/cash-out` | post |cashin any user wallet only agent can do it|
-| `api/v1/otp/send` | post |send otp in email|
+
+User interface :
+```
+ UserStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  BLOCKED = "blocked",
+  PENDING = "pending"
+}
+
+Role {
+  ADMIN = "admin",
+  USER = "user",
+  AGENT = "agent"
+}
+
+WalletStatus {
+  ACTIVE = "active",
+  BLOCKED = "blocked",
+  INACTIVE = "inactive"
+}
+```
+### Otp
+| path | oparation     | Description                |Required Parameter |
+| :-------- | :------- | :------------------------- |:----------------------|
+| `api/v1/otp/verify` | post |verifyemail|    "email":"sabbirmridha096@gmail.com","otp":"469876" |
+| `api/v1/otp/send` | post |send otp in email| "email":"sabbirmridha096@gmail.com"|
+
+### Agent
+
+*Headers :* ``` Authorization: Bearer <access_token>```
+
+| path | oparation     | Description                |Required Parameter |
+| :-------- | :------- | :------------------------- |:---------------------|  
+| `api/v1/agent/cash-in` | post |cashout any user wallet only aggent can do it|   "userId": "68b1776c3ca50da47b682eb2", "amount": 100,|
+| `api/v1/otp/cash-out` | post |cash in any user wallet only agent can do it|  "userId": "68b1776c3ca50da47b682eb2","amount": 50|
+
+
 
 ### Admin
 
-| path | oparation     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api/v1/admin/getAlluser` | get |admin Acsess|
-| `api/v1/admin/approvedAgent` | patch |approved agent role|
-| `api/v1/admin/blockUser` | patch |bloack user |
-| `api/v1/admin/blockAgent` | patch |block agent and his wallet |
+| path | oparation     | Description                |Required Parameter |
+| :-------- | :------- | :------------------------- |:--------------|
+| `api/v1/admin/getAlluser` | get |admin Acsess|Just hit this routes|
+| `api/v1/admin/approvedAgent` | patch |approved agent role| "status": "?"|
+| `api/v1/admin/users/:userId/status` | patch |bloack user/unblock |  "status": "?"|
+| `api/v1/admin/wallets/:walletId/status` | patch |constrol users wallet |  "status": "?"|
+| `api/v1/admin/:agentId/status` | patch |block agent and his wallet | "status": "?"|
+| `api/v1/admin/agents/:agentId` | Get |Get Only Agent |give agent Id |
+| `api/v1/admin/wallets` | Get |Get all Wallets | find all wallet |
+| `api/v1/admin/transactions` | Get |Get all transactions | find all transactions |
 
 ### 📊 Response Status Codes
 Status Code	Description
