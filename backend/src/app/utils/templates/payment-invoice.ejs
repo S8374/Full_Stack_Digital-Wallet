@@ -1,0 +1,186 @@
+<!-- src/templates/payment-invoice.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Payment Invoice - Digital Wallet</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.6; 
+            color: #333; 
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header { 
+            background: linear-gradient(135deg, #2c5aa0, #1e3a8a);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #2c5aa0;
+        }
+        .section h2 {
+            color: #2c5aa0;
+            margin-top: 0;
+            font-size: 18px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .detail-value {
+            color: #212529;
+        }
+        .amount-highlight {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c5aa0;
+            margin: 15px 0;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #2c5aa0;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #28a745;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Payment Confirmation</h1>
+            <p>Digital Wallet Service</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>Payment Details</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Transaction ID</div>
+                        <div class="detail-value"><%= transactionId %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Payment Date</div>
+                        <div class="detail-value"><%= paymentDate %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Status</div>
+                        <div class="detail-value">
+                            <span class="status-badge"><%= status %></span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Payment Method</div>
+                        <div class="detail-value"><%= paymentMethod %></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Customer Information</h2>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Name</div>
+                        <div class="detail-value"><%= userName %></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value"><%= userEmail %></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Payment Summary</h2>
+                <div class="detail-item">
+                    <div class="detail-label">Payment Type</div>
+                    <div class="detail-value"><%= paymentType %></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Amount</div>
+                    <div class="amount-highlight">$<%= amount.toFixed(2) %></div>
+                </div>
+                <% if (walletBalance !== undefined) { %>
+                <div class="detail-item">
+                    <div class="detail-label">New Wallet Balance</div>
+                    <div class="amount-highlight">$<%= walletBalance.toFixed(2) %></div>
+                </div>
+                <% } %>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <p>Your payment has been processed successfully. A detailed invoice is attached to this email.</p>
+                <a href="#" class="button">View Transaction History</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for using Digital Wallet Service!</p>
+            <p>For any questions, please contact our support team at support@digitalwallet.com</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+            <p>&copy; 2024 Digital Wallet Service. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
