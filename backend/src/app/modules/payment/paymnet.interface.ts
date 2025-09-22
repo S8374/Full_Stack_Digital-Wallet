@@ -32,4 +32,5 @@ export interface IPayment {
     transactionID?: Types.ObjectId;
     fromUserId?: Types.ObjectId;
     invoiceUrl?: string;
+    
 }

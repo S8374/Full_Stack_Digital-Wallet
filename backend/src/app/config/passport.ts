@@ -5,6 +5,8 @@ import { Role, UserStatus } from "../modules/user/user.interface";
 import bcrypt from 'bcrypt';
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-google-oauth20";
 import { envVariables } from "./envVeriables";
+import { Wallet } from "../modules/wallet/wallet.model"; // Import Wallet model
+import { WalletStatus, WalletType } from "../modules/wallet/wallet.interface"; // Import wallet types
 
 passport.use(
     new LocalStrategy({
@@ -18,13 +20,13 @@ passport.use(
                 return done(null, false, { message: "User does not exist" });
             }
 
-            // if (!isUserExist.isVerified) {
-            //     return done(null, false, { message: "User is not verified" });
-            // }
+            if (!isUserExist.isVerified) {
+                return done(null, false, { message: "User is not verified" });
+            }
 
-            // if (isUserExist.status !== UserStatus.ACTIVE) {
-            //     return done(null, false, { message: `User is ${isUserExist.status}` });
-            // }
+            if (isUserExist.status !== UserStatus.ACTIVE) {
+                return done(null, false, { message: `User is ${isUserExist.status}` });
+            }
 
             if (isUserExist.isDeleted) {
                 return done(null, false, { message: "User is deleted" });
@@ -80,10 +82,6 @@ passport.use(
                 let isUserExist = await User.findOne({ email });
                 
                 if (isUserExist) {
-                    // if (!isUserExist.isVerified) {
-                    //     return done(null, false, { message: "User is not verified" });
-                    // }
-
                     if (isUserExist.status !== UserStatus.ACTIVE) {
                         return done(null, false, { message: `User is ${isUserExist.status}` });
                     }
@@ -104,6 +102,24 @@ passport.use(
                         ];
                         await isUserExist.save();
                     }
+
+                    // Check if user has a wallet, create if not
+                    const existingWallet = await Wallet.findOne({ userId: isUserExist._id });
+                    if (!existingWallet) {
+                        await Wallet.create({
+                            userId: isUserExist._id,
+                            balance: 50,
+                            currency: "BDT",
+                            type: WalletType.USER,
+                            status: WalletStatus.ACTIVE,
+                            minBalance: 0,
+                            dailyLimit: 50000,
+                            monthlyLimit: 150000,
+                            dailySpent: 0,
+                            monthlySpent: 0,
+                            lastResetDate: new Date()
+                        });
+                    }
                 } else {
                     // Create new user for Google authentication
                     isUserExist = await User.create({
@@ -119,7 +135,20 @@ passport.use(
                         }]
                     });
 
-                    // Wallet will be created automatically through middleware
+                    // Create wallet for the new Google user
+                    await Wallet.create({
+                        userId: isUserExist._id,
+                        balance: 50,
+                        currency: "BDT",
+                        type: WalletType.USER,
+                        status: WalletStatus.ACTIVE,
+                        minBalance: 0,
+                        dailyLimit: 50000,
+                        monthlyLimit: 150000,
+                        dailySpent: 0,
+                        monthlySpent: 0,
+                        lastResetDate: new Date()
+                    });
                 }
 
                 return done(null, isUserExist);

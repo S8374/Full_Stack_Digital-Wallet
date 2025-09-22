@@ -23,7 +23,7 @@ const sslPaymentInit = async (payload: ISSLCommerz, paymentRequestId: string) =>
       total_amount: payload.amount,
       currency: "BDT",
       tran_id: payload.transactionId,
-      // Include paymentRequestId in all callback URLs
+      // In your SSLCommerz service, make sure to include paymentRequestId in callback URLs
       success_url: `${envVariables.SSL.SSL_SUCCESS_BACKEND_URL}?paymentRequestId=${paymentRequestId}&tran_id=${payload.transactionId}&amount=${payload.amount}`,
       fail_url: `${envVariables.SSL.SSL_FAIL_BACKEND_URL}?paymentRequestId=${paymentRequestId}&tran_id=${payload.transactionId}&amount=${payload.amount}`,
       cancel_url: `${envVariables.SSL.SSL_CANCEL_BACKEND_URL}?paymentRequestId=${paymentRequestId}&tran_id=${payload.transactionId}&amount=${payload.amount}`,
@@ -73,11 +73,11 @@ const validatePayment = async (payload: any) => {
     });
 
     console.log("sslcommerz validate api response", response.data);
-    
+
     if (response.data.status !== 'VALID') {
       throw new AppError(httpStatus.BAD_REQUEST, "Payment validation failed");
     }
-    
+
     return response.data;
   } catch (error: any) {
     console.log("SSL Validation Error:", error);

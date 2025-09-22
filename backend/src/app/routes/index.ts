@@ -6,6 +6,7 @@ import { AgentRoutes } from "../modules/agent/agent.route"
 import { AdminRoutes } from "../modules/admin/admin.route"
 import { PaymentRoutes } from "../modules/payment/payment.routes"
 import { OtpRoutes } from "../modules/otp/otp.route"
+import { MoneyRequestRoutes } from "../modules/moneyRequest/moneyRequest.routes"
 export const router = Router()
 
 const moduleRoutes = [
@@ -36,6 +37,10 @@ const moduleRoutes = [
     {
         path: "/otp",
         route: OtpRoutes
+    },
+    {
+        path: "/money-requests",
+        route: MoneyRequestRoutes,
     },
 ]
 

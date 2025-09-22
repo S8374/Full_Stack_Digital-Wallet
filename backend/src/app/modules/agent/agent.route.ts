@@ -9,5 +9,7 @@ const router = Router();
 // Agent routes
 router.post("/cash-in", checkAuth(Role.AGENT), validateRequest(cashInValidation), AgentControllers.cashIn);
 router.post("/cash-out", checkAuth(Role.AGENT), validateRequest(cashOutValidation), AgentControllers.cashOut);
+router.post("/request-agent", checkAuth(Role.USER), AgentControllers.requestToBecomeAgent);
+router.post("/cancel-agent-request", checkAuth(Role.USER), AgentControllers.cancelAgentRequest);
 
 export const AgentRoutes =  router ;

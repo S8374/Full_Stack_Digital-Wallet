@@ -7,7 +7,8 @@ export enum TransactionType {
   CASH_IN = "cash_in",
   CASH_OUT = "cash_out",
   FEE = "fee",
-  COMMISSION = "commission"
+  COMMISSION = "commission",
+   REFUNDED = "refunded"
 }
 
 export enum TransactionStatus {

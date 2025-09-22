@@ -8,9 +8,9 @@ import { updateWalletStatusValidation, updateAgentStatusValidation, updateUserSt
 const router = Router();
 
 // User management
-router.get("/users", checkAuth(Role.ADMIN), AdminControllers.getAllUsers);
+router.get("/users", checkAuth(Role.ADMIN,Role.AGENT), AdminControllers.getAllUsers);
 router.get("/users/:userId", checkAuth(Role.ADMIN), AdminControllers.getUserById);
-router.patch("/users/:userId/status", checkAuth(Role.ADMIN), validateRequest(updateUserStatusValidation), AdminControllers.updateUserStatus);
+router.patch("/users/:userId/status", checkAuth(Role.ADMIN),  AdminControllers.updateUserStatus);
 // Agent management
 router.get("/agents", checkAuth(Role.ADMIN), AdminControllers.getAllAgents);
 router.get("/agents/pending", checkAuth(Role.ADMIN), AdminControllers.getPendingAgents);

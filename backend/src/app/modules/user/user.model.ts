@@ -7,6 +7,7 @@ const authProviderSchema = new Schema<IAuthProvider>({
   versionKey: false,
   _id: false
 });
+// Add agent request schema
 
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
@@ -20,7 +21,7 @@ const userSchema = new Schema<IUser>({
   isVerified: { type: Boolean, default: false },
   role: { type: String, enum: Object.values(Role) },
   auths: [authProviderSchema],
-
+  
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

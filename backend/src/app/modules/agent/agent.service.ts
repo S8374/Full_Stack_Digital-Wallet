@@ -2,9 +2,11 @@ import mongoose, { Types } from "mongoose";
 import AppError from "../../errorHelpers/appError";
 import httpStatus from 'http-status';
 import { Wallet } from "../wallet/wallet.model";
-import { WalletStatus } from "../wallet/wallet.interface";
+import { WalletStatus, WalletType } from "../wallet/wallet.interface";
 import { Transaction } from "../transaction/transaction.model";
 import { TransactionStatus, TransactionType } from "../transaction/transaction.interface";
+import { Role, UserStatus } from "../user/user.interface";
+import { User } from "../user/user.model";
 
 export const cashIn = async (
   agentId: string,
@@ -198,7 +200,101 @@ export const cashOut = async (
     transaction,
   };
 };
+// Request to become an agent
+const requestToBecomeAgent = async (userId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findById(userId).session(session);
+    
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    }
+
+    if (user.role === Role.AGENT) {
+      throw new AppError(httpStatus.BAD_REQUEST, "User is already an agent");
+    }
+
+    if (user.status === UserStatus.PENDING) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Agent request already pending");
+    }
+
+    // Set user role to agent and status to pending
+    user.role = Role.AGENT;
+    user.status = UserStatus.PENDING;
+
+    await user.save({ session });
+
+    // Update wallet to agent type with inactive status
+    const wallet = await Wallet.findOne({ userId }).session(session);
+    if (wallet) {
+      wallet.type = WalletType.AGENT;
+      wallet.status = WalletStatus.INACTIVE;
+      await wallet.save({ session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      message: "Agent request submitted successfully. Waiting for admin approval."
+    };
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
+// Cancel agent request
+const cancelAgentRequest = async (userId: string) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findById(userId).session(session);
+    
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    }
+
+    if (user.role !== Role.AGENT || user.status !== UserStatus.PENDING) {
+      throw new AppError(httpStatus.BAD_REQUEST, "No pending agent request to cancel");
+    }
+
+    // Revert user role to user and status to active
+    user.role = Role.USER;
+    user.status = UserStatus.ACTIVE;
+
+    await user.save({ session });
+
+    // Revert wallet to user type
+    const wallet = await Wallet.findOne({ userId }).session(session);
+    if (wallet) {
+      wallet.type = WalletType.USER;
+      wallet.status = WalletStatus.ACTIVE;
+      await wallet.save({ session });
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      message: "Agent request cancelled successfully"
+    };
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
+};
+
 export const AgentService ={
     cashIn,
-    cashOut
+    cashOut,
+    cancelAgentRequest,
+    requestToBecomeAgent
 }

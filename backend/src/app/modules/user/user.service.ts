@@ -32,6 +32,8 @@ const createUser = async (payload: Partial<IUser>) => {
   // Determine wallet type based on role
   const walletType = role === Role.AGENT ? WalletType.AGENT : WalletType.USER;
   const walletStatus = role === Role.AGENT ? WalletStatus.INACTIVE : WalletStatus.ACTIVE;
+  // Add agent request if user is registering as agent
+  
 
   // Create user with correct role and status
   const user = await User.create({
@@ -177,9 +179,57 @@ const getWallet = async (userId: string) => {
   const updatedWallet = await Wallet.checkAndResetLimits(wallet._id);
   return updatedWallet;
 };
+const getMe = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  return {
+    data: user
+  }
+};
+const searchUsers = async (searchQuery: string, currentUserId: string) => {
+  if (!searchQuery || searchQuery.length < 3) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Search query must be at least 3 characters long");
+  }
+
+  const users = await User.find({
+    $and: [
+      {
+        $or: [
+          { name: { $regex: searchQuery, $options: 'i' } },
+          { email: { $regex: searchQuery, $options: 'i' } },
+          { phone: { $regex: searchQuery, $options: 'i' } }
+        ]
+      },
+      { _id: { $ne: new Types.ObjectId(currentUserId) } }, // Exclude current user
+      { isDeleted: false },
+      { status: UserStatus.ACTIVE }
+    ]
+  })
+    .select('name email phone role status')
+    .limit(20)
+    .lean();
+
+  return users;
+};
+// Update user profile
+const updateProfile = async (userId: string, updateData: any) => {
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: updateData },
+    { new: true, runValidators: true }
+  ).select("-password");
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return user;
+};
 
 export const UserServices = {
   createUser,
   sendMoney,
-  getWallet
+  getWallet,
+  getMe,
+  searchUsers,
+  updateProfile
 };

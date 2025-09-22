@@ -13,7 +13,7 @@ router.post("/logout", AuthControllers.logout);
 
 //password reset
 router.post("/forgot-password", AuthControllers.forgotPassword);
-router.post("/reset-password", checkAuth(...Object.values(Role)), AuthControllers.resetPassword);
+router.post("/reset-password",  AuthControllers.resetPassword);
 // set new password
 router.post("/change-password", checkAuth(...Object.values(Role)), AuthControllers.changePassword);
 

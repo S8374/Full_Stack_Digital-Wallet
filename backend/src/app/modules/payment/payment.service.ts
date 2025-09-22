@@ -69,121 +69,6 @@ const initPayment = async (
     };
 };
 
-// // src/modules/payment/payment.service.ts (update successPayment function)
-// const successPayment = async (query: Record<string, string>) => {
-//     const { tran_id, val_id, paymentRequestId } = query;
-
-//     // Validate payment with SSLCommerz if val_id is provided
-//     if (val_id) {
-//         try {
-//             const validationResult = await SSLService.validatePayment({ val_id });
-//             console.log("Payment validation result:", validationResult);
-//         } catch (error) {
-//             console.error("Payment validation failed:", error);
-//             // Continue processing even if validation fails for now
-//         }
-//     }
-
-//     const session = await mongoose.startSession();
-//     session.startTransaction();
-
-//     try {
-//         // First try to find by transactionId
-//         let payment = await Payment.findOne({ transactionId: tran_id }).session(session);
-        
-//         // If not found by transactionId, try to find by paymentRequestId (for retried payments)
-//         if (!payment && paymentRequestId) {
-//             payment = await Payment.findById(paymentRequestId).session(session);
-            
-//             // Verify that the transactionId matches the current payment's transactionId
-//             if (payment && payment.transactionId !== tran_id) {
-//                 throw new AppError(httpStatus.BAD_REQUEST, "Transaction ID mismatch");
-//             }
-//         }
-        
-//         if (!payment) {
-//             throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
-//         }
-
-//         // Check if payment is already processed
-//         if (payment.status === PAYMENT_STATUS.PAID) {
-//             await session.commitTransaction();
-//             session.endSession();
-//             return {
-//                 success: true,
-//                 message: "Payment was already processed successfully"
-//             };
-//         }
-
-//         // Update payment status
-//         const updatedPayment = await Payment.findOneAndUpdate(
-//             { _id: payment._id },
-//             {
-//                 status: PAYMENT_STATUS.PAID,
-//                 paymentGatewayData: { ...payment.paymentGatewayData, validationData: query }
-//             },
-//             { new: true, session }
-//         );
-//         const invoiceData : IInvoiceData= {
-//             transactionId: updatedPayment!.transactionId,
-//             MonetAddedDate: new Date(),
-//             userName: (await User.findById(updatedPayment!.userId))?.name || "N/A",
-//             MoneyType: updatedPayment!.type,
-//             totalAmount: updatedPayment!.amount
-
-//         }
-//         // Create transaction based on payment type
-//         let transaction;
-//         switch (payment.type) {
-//             case PAYMENT_TYPE.ADD_MONEY:
-//                 transaction = await handleAddMoney(payment, session);
-//                 break;
-//             case PAYMENT_TYPE.SEND_MONEY:
-//                 transaction = await handleSendMoney(payment, session);
-//                 break;
-//             case PAYMENT_TYPE.CASH_IN:
-//                 transaction = await handleCashIn(payment, session);
-//                 break;
-//             case PAYMENT_TYPE.CASH_OUT:
-//                 transaction = await handleCashOut(payment, session);
-//                 break;
-//             case PAYMENT_TYPE.WITHDRAW:
-//                 transaction = await handleWithdraw(payment, session);
-//                 break;
-//             default:
-//                 throw new AppError(httpStatus.BAD_REQUEST, "Invalid payment type");
-//         }
-
-//         // Update payment with transaction ID
-//         await Payment.findByIdAndUpdate(
-//             payment._id,
-//             { transactionID: transaction._id },
-//             { session }
-//         );
-
-//         await session.commitTransaction();
-//         session.endSession();
-
-//         return {
-//             success: true,
-//             message: "Payment Completed Successfully",
-//             transactionId: transaction._id
-//         };
-//     } catch (error) {
-//         await session.abortTransaction();
-//         session.endSession();
-
-//         // Update payment status to failed in case of error
-//         await Payment.findOneAndUpdate(
-//             { transactionId: tran_id },
-//             { status: PAYMENT_STATUS.FAILED }
-//         );
-
-//         console.error("Payment processing error:", error);
-//         throw error;
-//     }
-// };
-// src/modules/payment/payment.service.ts
 const successPayment = async (query: Record<string, string>) => {
     const { tran_id, val_id, paymentRequestId } = query;
 
@@ -657,6 +542,9 @@ const retryPayment = async (paymentId: string) => {
         type: existingPayment.type
     };
 };
+
+
+
 export const PaymentService = {
     initPayment,
     successPayment,

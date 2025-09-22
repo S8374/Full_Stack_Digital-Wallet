@@ -10,7 +10,7 @@ import { AuthServices } from './auth.service';
 import { envVariables } from '../config/envVeriables';
 import { User } from '../modules/user/user.model';
 import { Role } from '../modules/user/user.interface';
-import { JwtPayload } from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // const loginInfo = await AuthServices.credentialsLogin(req.body)
 
@@ -127,13 +127,14 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
 
     res.clearCookie("accessToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax"
+        secure: true,
+        sameSite: "none",
     })
     res.clearCookie("refreshToken", {
         httpOnly: true,
-        secure: false,
-        sameSite: "lax"
+        secure: true,
+        sameSite: "none",
+
     })
 
     sendResponse(res, {
@@ -157,19 +158,19 @@ const forgotPassword = catchAsync(async (req: Request, res: Response, next: Next
         data: null,
     })
 })
-const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+// const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const decodedToken = req.user
+//     const decodedToken = req.user
 
-    await AuthServices.resetPassword(req.body, decodedToken as JwtPayload);
+//     await AuthServices.resetPassword(req.body, decodedToken as JwtPayload);
 
-    sendResponse(res, {
-        success: true,
-        statusCode: httpStatus.OK,
-        message: "Password Changed Successfully",
-        data: null,
-    })
-})
+//     sendResponse(res, {
+//         success: true,
+//         statusCode: httpStatus.OK,
+//         message: "Password Changed Successfully",
+//         data: null,
+//     })
+// })
 const setPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const decodedToken = req.user as JwtPayload
@@ -198,7 +199,39 @@ const changePassword = catchAsync(async (req: Request, res: Response, next: Next
         message: "Password Changed Successfully",
         data: null,
     })
-})
+});
+// NEW: Reset password without authentication (public endpoint)
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { token, id, newPassword } = req.body;
+
+    if (!token || !id || !newPassword) {
+        return next(new AppError(httpStatus.BAD_REQUEST, "Token, user ID, and new password are required"));
+    }
+
+    // Verify the token
+    let decodedToken;
+    try {
+        decodedToken = jwt.verify(token, envVariables.JWT_ACCESS_SECRET as string) as JwtPayload;
+    } catch (error) {
+        return next(new AppError(httpStatus.UNAUTHORIZED, "Invalid or expired token"));
+    }
+
+    // Verify the user ID matches the token
+    if (decodedToken.userId !== id) {
+        return next(new AppError(httpStatus.UNAUTHORIZED, "Invalid token for this user"));
+    }
+
+    // Reset the password
+    await AuthServices.resetPassword({ id, newPassword }, decodedToken);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password reset successfully",
+        data: null,
+    });
+});
+
 export const AuthControllers = {
     credentialsLogin,
     getNewAccessToken,
@@ -209,5 +242,4 @@ export const AuthControllers = {
     resetPassword,
     setPassword,
     changePassword
-
 }

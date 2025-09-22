@@ -11,4 +11,19 @@ router.post("/success", PaymentController.successPayment); // Changed from POST 
 router.post("/fail", PaymentController.failPayment); // Changed from POST to GET
 router.post("/cancel", PaymentController.cancelPayment); // Changed from POST to GET
 router.post("/retry-payment/:paymentId", checkAuth(Role.USER, Role.AGENT), PaymentController.retryPayment);
+router.get(
+    "/my-cancelled-payments",
+    checkAuth(Role.USER, Role.AGENT),
+    PaymentController.getCancelPaymentSpasicUser
+);
+router.get(
+    "/my-transaction",
+    checkAuth(Role.USER, Role.AGENT),
+    PaymentController.getTransactionSpecificUser
+);
+router.get(
+    "/my-complete-payments",
+    checkAuth(Role.USER, Role.AGENT),
+    PaymentController.getCompletPaymentSpasificUser
+);
 export const PaymentRoutes = router;

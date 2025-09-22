@@ -14,13 +14,16 @@ app.use(expressSession({
     secret: envVariables.EXPRESS_SESSION_SECRET as string,
     resave: false,
     saveUninitialized: false
-}))
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+app.use(cors({
+    origin: envVariables.FRONTEND_URL,
+    credentials: true
+}));
 app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {

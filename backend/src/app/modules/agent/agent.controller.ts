@@ -33,7 +33,36 @@ const cashOut = catchAsync(async (req: Request, res: Response, next: NextFunctio
         data: result
     });
 });
+const requestToBecomeAgent = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = (req.user as any)?.userId;
+  
+  const result = await AgentService.requestToBecomeAgent(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Agent request submitted successfully. Waiting for admin approval.",
+    data: result
+  });
+});
+
+// Cancel agent request
+const cancelAgentRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = (req.user as any)?.userId;
+  
+  const result = await AgentService.cancelAgentRequest(userId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Agent request cancelled successfully",
+    data: result
+  });
+});
+
 export const AgentControllers = {
     cashIn,
-    cashOut
+    cashOut,
+    cancelAgentRequest,
+    requestToBecomeAgent
 };

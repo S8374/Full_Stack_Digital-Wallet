@@ -5,6 +5,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import httpStatus from 'http-status';
 import { PaymentService } from "../payment/payment.service";
 import { PAYMENT_TYPE } from "../payment/paymnet.interface";
+import { Wallet } from "./wallet.model";
 
 const addMoney = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const userId = (req.user as any)?.userId;
@@ -12,9 +13,9 @@ const addMoney = catchAsync(async (req: Request, res: Response, next: NextFuncti
 
   // For add money, toUserId is same as userId
   const result = await PaymentService.initPayment(
-    userId as string, 
     userId as string,
-    amount, 
+    userId as string,
+    amount,
     PAYMENT_TYPE.ADD_MONEY
   );
 
@@ -32,9 +33,9 @@ const withdrawMoney = catchAsync(async (req: Request, res: Response, next: NextF
 
   // For withdrawal, toUserId is same as userId
   const result = await PaymentService.initPayment(
-    userId as string, 
     userId as string,
-    amount, 
+    userId as string,
+    amount,
     PAYMENT_TYPE.WITHDRAW
   );
 
@@ -45,8 +46,38 @@ const withdrawMoney = catchAsync(async (req: Request, res: Response, next: NextF
     data: result
   });
 });
+const getSingleUserWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.params.userId || (req.user as any)?.userId;
+
+  if (!userId) {
+    res.status(401).json({
+      success: false,
+      message: "Unauthorized or userId missing",
+    });
+    return;
+  }
+
+  const wallet = await Wallet.findOne({ userId });
+
+  if (!wallet) {
+    res.status(404).json({
+      success: false,
+      message: "Wallet not found",
+    });
+    return;
+  }
+
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Wallet fetched successfully",
+    data: wallet,
+  });
+});
+
 
 export const WalletControllers = {
   addMoney,
-  withdrawMoney
+  withdrawMoney,
+  getSingleUserWallet
 };

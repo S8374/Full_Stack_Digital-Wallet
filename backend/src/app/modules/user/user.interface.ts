@@ -19,6 +19,13 @@ export enum UserStatus {
   BLOCKED = "blocked",
   PENDING = "pending"
 }
+export interface IAgentRequest {
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'none';
+  requestedAt?: Date;
+  reviewedAt?: Date;
+  reviewedBy?: Types.ObjectId;
+  rejectionReason?: string;
+}
 
 export interface IUser {
   _id: Types.ObjectId;

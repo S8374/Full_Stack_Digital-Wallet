@@ -11,7 +11,7 @@ import {  UserStatus } from '../modules/user/user.interface';
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-        const accessToken = req.headers.authorization;
+        const accessToken = req.cookies.accessToken || req.headers.authorization;
 
         if (!accessToken) {
             throw new AppError(403, "No Token Received")
@@ -30,7 +30,7 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         if (isUserExist.isDeleted) {
             throw new AppError(httpStatus.BAD_REQUEST, "User is deleted")
         }
-        console.log("User is verified", verifiedToken)
+        // console.log("User is verified", verifiedToken)
         if (verifiedToken.role === "PENDING" ||!authRoles.includes(verifiedToken.role) ) {
             throw new AppError(403, "You are not permitted to view this route!!!")
         }
